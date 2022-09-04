@@ -2,22 +2,29 @@
 
 namespace HijodeputhIV\Subscriptions\Controller;
 
+use XF\App;
+use XF\Http\Request;
 use XF\Api\Controller\AbstractController;
 use XF\Api\Mvc\Reply\ApiResult;
-use XF\Db\Exception as XenforoDatabaseException;
-use XF\Mvc\Reply\Exception as XenforoApiException;
+use XF\Mvc\Reply\Exception;
 
-use HijodeputhIV\Subscriptions\Entity\Subscription;
-use HijodeputhIV\Subscriptions\Repository\Subscriptions;
-use HijodeputhIV\Subscriptions\ValueObject\UserId;
-use HijodeputhIV\Subscriptions\ValueObject\Token;
-use HijodeputhIV\Subscriptions\ValueObject\Webhook;
+use HijodeputhIV\Subscriptions\Action\CreateSubscription;
+use HijodeputhIV\Subscriptions\Repository\MysqlSubscriptionRepository;
 
 class Subscribe extends AbstractController
 {
+    private CreateSubscription $createSubscription;
+
+    public function __construct(App $app, Request $request)
+    {
+        parent::__construct($app, $request);
+
+        $subscriptionRepository = new MysqlSubscriptionRepository($this->em());
+        $this->createSubscription = new CreateSubscription($subscriptionRepository);
+    }
 
     /**
-     * @throws XenforoApiException
+     * @throws Exception
      */
     public function actionPost() : ApiResult
     {
@@ -27,27 +34,11 @@ class Subscribe extends AbstractController
             'webhook'
         ]);
 
-        $subscription = new Subscription(
-            userId: new UserId($this->request->filter('user_id', 'uint')),
-            webhook: new Webhook($this->request->filter('webhook', 'str')),
-            token: new Token($this->request->filter('token', 'str')),
+        $this->createSubscription->execute(
+            user_id: $this->request->filter('user_id', 'uint'),
+            webhook: $this->request->filter('webhook', 'str'),
+            token: $this->request->filter('token', 'str'),
         );
-
-        $subscriptions = new Subscriptions($this->em());
-
-        try {
-            $subscriptions->save($subscription);
-        }
-        catch (XenforoDatabaseException) {
-            throw $this->exception(
-                $this->apiError(
-                    'The subscription has failed',
-                    'subscription_not_saved',
-                    [],
-                    500,
-                )
-            );
-        }
 
         return $this->apiSuccess();
     }

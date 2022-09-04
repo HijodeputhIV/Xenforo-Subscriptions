@@ -7,9 +7,8 @@ use XF\Db\Exception;
 
 use HijodeputhIV\Subscriptions\Entity\Subscription;
 
-final class Subscriptions
+final class MysqlSubscriptionRepository
 {
-
     public function __construct(
         private readonly Manager $entityManager,
     ) {}
