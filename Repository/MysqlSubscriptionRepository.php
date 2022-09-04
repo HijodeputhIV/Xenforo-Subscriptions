@@ -51,6 +51,21 @@ final class MysqlSubscriptionRepository
     }
 
     /**
+     * @return Subscription[]
+     *
+     * @throws ReflectionException
+     */
+    private function hydrateInstances(array $rows) : array
+    {
+        return array_map(
+            function (array $row) : Subscription {
+                return $this->hydrateInstance($row);
+            },
+            $rows,
+        );
+    }
+
+    /**
      * @throws ReflectionException
      */
     public function get(UserId $userId) : ?Subscription
@@ -68,18 +83,25 @@ final class MysqlSubscriptionRepository
     }
 
     /**
+     * @return Subscription[]
+     *
      * @throws ReflectionException
      */
     public function all() : array
     {
         $rows = $this->entityManager->getDb()->fetchAll('SELECT * FROM `xf_subscriptions`');
+        return $this->hydrateInstances($rows);
+    }
 
-        return array_map(
-            function (array $row) : Subscription {
-                return $this->hydrateInstance($row);
-            },
-            $rows,
-        );
+    /**
+     * @return Subscription[]
+     *
+     * @throws ReflectionException
+     */
+    public function groupByWebhook() : array
+    {
+        $rows = $this->entityManager->getDb()->fetchAll('SELECT * FROM `xf_subscriptions` GROUP BY `webhook`');
+        return $this->hydrateInstances($rows);
     }
 
     /**
