@@ -9,6 +9,9 @@ use XF\Mvc\Reply\Exception as XenforoApiException;
 
 use HijodeputhIV\Subscriptions\Entity\Subscription;
 use HijodeputhIV\Subscriptions\Repository\Subscriptions;
+use HijodeputhIV\Subscriptions\ValueObject\UserId;
+use HijodeputhIV\Subscriptions\ValueObject\Token;
+use HijodeputhIV\Subscriptions\ValueObject\Webhook;
 
 class Subscribe extends AbstractController
 {
@@ -25,9 +28,9 @@ class Subscribe extends AbstractController
         ]);
 
         $subscription = new Subscription(
-            userId: $this->request->filter('user_id', 'uint'),
-            webhook: $this->request->filter('webhook', 'str'),
-            token: $this->request->filter('token', 'str'),
+            userId: new UserId($this->request->filter('user_id', 'uint')),
+            webhook: new Webhook($this->request->filter('webhook', 'str')),
+            token: new Token($this->request->filter('token', 'str')),
         );
 
         $subscriptions = new Subscriptions($this->em());

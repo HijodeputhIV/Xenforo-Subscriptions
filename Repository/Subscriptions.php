@@ -22,9 +22,9 @@ final class Subscriptions
         $this->entityManager->getDb()->insert(
             table: 'xf_subscriptions',
             rawValues: [
-                'user_id' => $subscription->userId,
-                'webhook' => $subscription->webhook,
-                'token' => $subscription->token,
+                'user_id' => $subscription->userId->getValue(),
+                'webhook' => $subscription->webhook->getValue(),
+                'token' => $subscription->token->getValue(),
             ],
             replaceInto: true,
             onDupe: true,
