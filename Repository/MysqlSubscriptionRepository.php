@@ -9,6 +9,7 @@ use XF\Mvc\Entity\Manager;
 use XF\Db\Exception;
 
 use HijodeputhIV\Subscriptions\Entity\Subscription;
+use HijodeputhIV\Subscriptions\ValueObject\SubscriptionId;
 use HijodeputhIV\Subscriptions\ValueObject\UserId;
 use HijodeputhIV\Subscriptions\ValueObject\Webhook;
 use HijodeputhIV\Subscriptions\ValueObject\Token;
@@ -42,10 +43,10 @@ final class MysqlSubscriptionRepository
     private function hydrateInstance(array $arguments) : Subscription
     {
         return new Subscription(
+            id: $this->hydrateProperty(SubscriptionId::class, ['uuid' => $arguments['id']]),
             userId: $this->hydrateProperty(UserId::class, ['user_id' => $arguments['user_id']]),
             webhook: $this->hydrateProperty(Webhook::class, ['url' => $arguments['webhook']]),
-            token: $this->hydrateProperty(Token::class, ['token' => $arguments['token']]),
-            id: $arguments['id'],
+            token: $this->hydrateProperty(Token::class, ['hash' => $arguments['token']]),
         );
     }
 
@@ -89,6 +90,7 @@ final class MysqlSubscriptionRepository
         $this->entityManager->getDb()->insert(
             table: 'xf_subscriptions',
             rawValues: [
+                'id' => $subscription->id->getValue(),
                 'user_id' => $subscription->userId->getValue(),
                 'webhook' => $subscription->webhook->getValue(),
                 'token' => $subscription->token->getValue(),

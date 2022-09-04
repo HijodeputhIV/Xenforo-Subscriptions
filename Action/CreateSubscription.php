@@ -9,6 +9,7 @@ use HijodeputhIV\Subscriptions\Service\UserFinder;
 use HijodeputhIV\Subscriptions\Service\WebhookChecker;
 use HijodeputhIV\Subscriptions\Entity\Subscription;
 use HijodeputhIV\Subscriptions\Repository\MysqlSubscriptionRepository;
+use HijodeputhIV\Subscriptions\ValueObject\SubscriptionId;
 use HijodeputhIV\Subscriptions\ValueObject\UserId;
 use HijodeputhIV\Subscriptions\ValueObject\Webhook;
 use HijodeputhIV\Subscriptions\ValueObject\Token;
@@ -29,7 +30,7 @@ final class CreateSubscription
     ) {}
 
     /**
-     * @throws InvalidUserIdException|InvalidWebhookException|InvalidTokenException
+     * @throws InvalidUuidException|InvalidUserIdException|InvalidWebhookException|InvalidTokenException
      * @throws UserNotFoundException
      * @throws WebhookNotImplementedException
      * @throws SubscriptionSaveException
@@ -37,6 +38,7 @@ final class CreateSubscription
     public function execute(int $user_id, string $webhook, string $token) : void
     {
         $subscription = new Subscription(
+            id: SubscriptionId::generate(),
             userId: new UserId($user_id),
             webhook: new Webhook($webhook, $this->urlValidator),
             token: new Token($token),

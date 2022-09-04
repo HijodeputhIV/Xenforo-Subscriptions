@@ -11,7 +11,7 @@ class Setup extends AbstractSetup
 	public function install(array $stepParams = []) : void
 	{
         $this->schemaManager()->createTable('xf_subscriptions', function(Create $table) : void {
-            $table->addColumn('id', 'int')->primaryKey()->autoIncrement();
+            $table->addColumn('id', 'varchar', 36)->primaryKey();
             $table->addColumn('user_id', 'int')->nullable(false);
             $table->addColumn('webhook', 'varchar', 255)->nullable(false);
             $table->addColumn('token', 'varchar', 32)->nullable(false);

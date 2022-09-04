@@ -2,22 +2,17 @@
 
 namespace HijodeputhIV\Subscriptions\Entity;
 
+use HijodeputhIV\Subscriptions\ValueObject\SubscriptionId;
 use HijodeputhIV\Subscriptions\ValueObject\UserId;
 use HijodeputhIV\Subscriptions\ValueObject\Webhook;
 use HijodeputhIV\Subscriptions\ValueObject\Token;
 
 final class Subscription
 {
-    public readonly int $id;
-
     public function __construct(
+        public readonly SubscriptionId $id,
         public readonly UserId $userId,
         public readonly Webhook $webhook,
         public readonly Token $token,
-        ?int $id = null,
-    ) {
-        $this->id = $id;
-    }
-
-
+    ) {}
 }
