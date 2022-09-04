@@ -2,6 +2,7 @@
 
 namespace HijodeputhIV\Subscriptions;
 
+use HijodeputhIV\Subscriptions\Action\CreateSubscription;
 use XF\App;
 use XF\Container;
 
@@ -48,6 +49,15 @@ final class Listener
 
         $container[WebhookNotifier::class] = function () use ($app) {
             return new WebhookNotifier(self::createSilentHttpClient($app));
+        };
+
+        $container[CreateSubscription::class] = function () use ($app) {
+            return new CreateSubscription(
+                urlValidator: $app->validator('Url'),
+                userFinder: $app->get(UserFinder::class),
+                webhookChecker: $app->get(WebhookChecker::class),
+                subscriptionRepository: $app->get(MysqlSubscriptionRepository::class),
+            );
         };
     }
 

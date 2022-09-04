@@ -18,7 +18,7 @@ final class Post extends XFCP_Post
     /**
      * @throws ReflectionException
      */
-    public function _postSave()
+    public function _postSave() : void
     {
         /** @var MysqlSubscriptionRepository $subscriptionsRepository */
         $subscriptionsRepository = XF::app()->get(MysqlSubscriptionRepository::class);

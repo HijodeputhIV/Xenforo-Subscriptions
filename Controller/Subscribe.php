@@ -9,9 +9,6 @@ use XF\Api\Mvc\Reply\ApiResult;
 use XF\Mvc\Reply\Exception;
 
 use HijodeputhIV\Subscriptions\Action\CreateSubscription;
-use HijodeputhIV\Subscriptions\Service\UserFinder;
-use HijodeputhIV\Subscriptions\Service\WebhookChecker;
-use HijodeputhIV\Subscriptions\Repository\MysqlSubscriptionRepository;
 
 class Subscribe extends AbstractController
 {
@@ -20,15 +17,9 @@ class Subscribe extends AbstractController
     public function __construct(App $app, Request $request)
     {
         parent::__construct($app, $request);
-
-        $this->createSubscription = new CreateSubscription(
-            urlValidator: $app->validator('Url'),
-            userFinder: $app->get(UserFinder::class),
-            webhookChecker: $app->get(WebhookChecker::class),
-            subscriptionRepository: $app->get(MysqlSubscriptionRepository::class),
-        );
+        $this->createSubscription = $app->get(CreateSubscription::class);
     }
-
+    
     /**
      * @throws Exception
      */
