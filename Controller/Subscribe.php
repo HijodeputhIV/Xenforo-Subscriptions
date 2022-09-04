@@ -9,6 +9,8 @@ use XF\Api\Mvc\Reply\ApiResult;
 use XF\Mvc\Reply\Exception;
 
 use HijodeputhIV\Subscriptions\Action\CreateSubscription;
+use HijodeputhIV\Subscriptions\Repository\MysqlUserRepository;
+use HijodeputhIV\Subscriptions\Service\UserFinder;
 use HijodeputhIV\Subscriptions\Repository\MysqlSubscriptionRepository;
 
 class Subscribe extends AbstractController
@@ -19,8 +21,10 @@ class Subscribe extends AbstractController
     {
         parent::__construct($app, $request);
 
-        $subscriptionRepository = new MysqlSubscriptionRepository($this->em());
-        $this->createSubscription = new CreateSubscription($subscriptionRepository);
+        $this->createSubscription = new CreateSubscription(
+            userFinder: new UserFinder(new MysqlUserRepository(($this->em()))),
+            subscriptionRepository: new MysqlSubscriptionRepository($this->em()),
+        );
     }
 
     /**
