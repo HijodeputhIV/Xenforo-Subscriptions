@@ -12,10 +12,10 @@ class Setup extends AbstractSetup
 	{
         $this->schemaManager()->createTable('xf_subscriptions', function(Create $table) : void {
             $table->addColumn('id', 'int')->primaryKey()->autoIncrement();
-            $table->addColumn('user_id', 'int')->nullable(FALSE);
-            $table->addColumn('token', 'varchar', 32)->nullable(FALSE);
-            $table->addColumn('webhook', 'varchar', 255)->nullable(FALSE);
-            $table->addUniqueKey('user_id');
+            $table->addColumn('user_id', 'int')->nullable(false);
+            $table->addColumn('webhook', 'varchar', 255)->nullable(false);
+            $table->addColumn('token', 'varchar', 32)->nullable(false);
+            $table->addUniqueKey('user_id')->addColumn('webhook');
         });
 	}
 
