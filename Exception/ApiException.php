@@ -8,9 +8,12 @@ use XF\Api\ErrorMessage;
 
 abstract class ApiException extends Exception
 {
-    public function __construct(string $message, int $httpCode)
+    public function __construct(string $message, string $errorCode, int $httpCode)
     {
-        $apiErrorMessage = new ErrorMessage($message, $httpCode);
-        parent::__construct(new Error($apiErrorMessage));
+        $apiErrorMessage = new ErrorMessage(
+            message: $message,
+            code: $errorCode,
+        );
+        parent::__construct(new Error($apiErrorMessage, $httpCode));
     }
 }

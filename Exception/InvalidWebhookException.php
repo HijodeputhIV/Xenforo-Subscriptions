@@ -2,13 +2,13 @@
 
 namespace HijodeputhIV\Subscriptions\Exception;
 
-final class InvalidWebhookException extends ApiException
+final class InvalidWebhookException extends InputException
 {
     public function __construct()
     {
         parent::__construct(
-            message: 'Invalid url',
-            httpCode: 400,
+            message:'Invalid url',
+            errorCode: 'subscription_webhook_invalid_url'
         );
     }
 }

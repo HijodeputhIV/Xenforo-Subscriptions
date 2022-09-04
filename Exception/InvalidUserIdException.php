@@ -2,13 +2,13 @@
 
 namespace HijodeputhIV\Subscriptions\Exception;
 
-final class InvalidUserIdException extends ApiException
+final class InvalidUserIdException extends InputException
 {
     public function __construct()
     {
         parent::__construct(
             message: 'User id must be greater than 0',
-            httpCode: 400,
+            errorCode: 'susbcription_user_id_invalid',
         );
     }
 }
