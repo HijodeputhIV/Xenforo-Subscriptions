@@ -2,17 +2,17 @@
 
 namespace HijodeputhIV\Subscriptions;
 
-use HijodeputhIV\Subscriptions\Action\CreateSubscription;
-use XF\App;
-use XF\Container;
-
 use GuzzleHttp\Client;
+
+use XF\App;
 
 use HijodeputhIV\Subscriptions\Repository\MysqlSubscriptionRepository;
 use HijodeputhIV\Subscriptions\Repository\MysqlUserRepository;
 use HijodeputhIV\Subscriptions\Service\UserFinder;
 use HijodeputhIV\Subscriptions\Service\WebhookChecker;
 use HijodeputhIV\Subscriptions\Service\WebhookNotifier;
+use HijodeputhIV\Subscriptions\Action\CreateSubscription;
+use HijodeputhIV\Subscriptions\Action\NotifyPost;
 
 final class Listener
 {
@@ -59,6 +59,14 @@ final class Listener
                 subscriptionRepository: $app->get(MysqlSubscriptionRepository::class),
             );
         };
+
+        $container[NotifyPost::class] = function() use ($app) {
+            return new NotifyPost(
+                subscriptionRepository: $app->get(MysqlSubscriptionRepository::class),
+                webhookNotifier: $app->get(WebhookNotifier::class),
+            );
+        };
+
     }
 
 }
