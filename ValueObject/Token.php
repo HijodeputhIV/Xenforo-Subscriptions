@@ -6,23 +6,23 @@ use HijodeputhIV\Subscriptions\Exception\InvalidTokenException;
 
 final class Token
 {
-    private readonly string $token;
+    private readonly string $hash;
 
     /**
      * @throws InvalidTokenException
      */
-    public function __construct(string $token)
+    public function __construct(string $hash)
     {
-        if (strlen($token) !== 32) {
+        if (strlen($hash) !== 32) {
             throw new InvalidTokenException();
         }
 
-        $this->token = $token;
+        $this->hash = $hash;
     }
 
     public function getValue() : string
     {
-        return $this->token;
+        return $this->hash;
     }
 
 }
