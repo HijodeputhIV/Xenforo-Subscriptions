@@ -8,11 +8,16 @@ use HijodeputhIV\Subscriptions\ValueObject\Token;
 
 final class Subscription
 {
+    public readonly int $id;
+
     public function __construct(
         public readonly UserId $userId,
         public readonly Webhook $webhook,
-        public readonly Token $token
-    ) {}
+        public readonly Token $token,
+        ?int $id = null,
+    ) {
+        $this->id = $id;
+    }
 
 
 }
