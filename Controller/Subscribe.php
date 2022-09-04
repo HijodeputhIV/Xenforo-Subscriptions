@@ -11,6 +11,7 @@ use XF\Mvc\Reply\Exception;
 use HijodeputhIV\Subscriptions\Action\CreateSubscription;
 use HijodeputhIV\Subscriptions\Repository\MysqlUserRepository;
 use HijodeputhIV\Subscriptions\Service\UserFinder;
+use HijodeputhIV\Subscriptions\Service\WebhookChecker;
 use HijodeputhIV\Subscriptions\Repository\MysqlSubscriptionRepository;
 
 class Subscribe extends AbstractController
@@ -23,6 +24,12 @@ class Subscribe extends AbstractController
 
         $this->createSubscription = new CreateSubscription(
             userFinder: new UserFinder(new MysqlUserRepository(($this->em()))),
+            webhookChecker: new WebhookChecker($app->http()->createClient([
+                'headers' => [
+                    'Content-Type' => 'application/json'
+                ],
+                'http_errors' => false,
+            ])),
             subscriptionRepository: new MysqlSubscriptionRepository($this->em()),
         );
     }
