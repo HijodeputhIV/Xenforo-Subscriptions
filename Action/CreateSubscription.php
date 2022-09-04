@@ -2,6 +2,7 @@
 
 namespace HijodeputhIV\Subscriptions\Action;
 
+use XF\Validator\Url as UrlValidator;
 use XF\Db\Exception;
 
 use HijodeputhIV\Subscriptions\Service\UserFinder;
@@ -21,6 +22,7 @@ use HijodeputhIV\Subscriptions\Exception\SubscriptionSaveException;
 final class CreateSubscription
 {
     public function __construct(
+        private readonly UrlValidator $urlValidator,
         private readonly UserFinder $userFinder,
         private readonly WebhookChecker $webhookChecker,
         private readonly MysqlSubscriptionRepository $subscriptionRepository,
@@ -36,7 +38,7 @@ final class CreateSubscription
     {
         $subscription = new Subscription(
             userId: new UserId($user_id),
-            webhook: new Webhook($webhook),
+            webhook: new Webhook($webhook, $this->urlValidator),
             token: new Token($token),
         );
 

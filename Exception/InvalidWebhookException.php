@@ -4,11 +4,11 @@ namespace HijodeputhIV\Subscriptions\Exception;
 
 final class InvalidWebhookException extends InputException
 {
-    public function __construct()
+    public function __construct(string $errorKey)
     {
         parent::__construct(
             message:'Invalid url',
-            errorCode: 'subscription_webhook_invalid_url'
+            errorCode: 'subscription_webhook_url_'.$errorKey,
         );
     }
 }

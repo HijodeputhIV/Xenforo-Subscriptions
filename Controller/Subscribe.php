@@ -23,6 +23,7 @@ class Subscribe extends AbstractController
         parent::__construct($app, $request);
 
         $this->createSubscription = new CreateSubscription(
+            urlValidator: $app->validator('Url'),
             userFinder: new UserFinder(new MysqlUserRepository(($this->em()))),
             webhookChecker: new WebhookChecker($app->http()->createClient([
                 'headers' => [

@@ -8,7 +8,7 @@ final class InvalidTokenException extends InputException
     {
         parent::__construct(
             message: 'Invalid md5 hash',
-            errorCode: 'subscription_token_invalid_hash'
+            errorCode: 'subscription_token_hash_invalid'
         );
     }
 }

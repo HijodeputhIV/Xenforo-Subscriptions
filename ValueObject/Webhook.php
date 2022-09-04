@@ -2,6 +2,8 @@
 
 namespace HijodeputhIV\Subscriptions\ValueObject;
 
+use XF\Validator\Url as UrlValidator;
+
 use HijodeputhIV\Subscriptions\Exception\InvalidWebhookException;
 
 final class Webhook
@@ -11,10 +13,12 @@ final class Webhook
     /**
      * @throws InvalidWebhookException
      */
-    public function __construct(string $url)
+    public function __construct(string $url, UrlValidator $urlValidator)
     {
-        if (!filter_var($url, FILTER_VALIDATE_URL) === true) {
-            throw new InvalidWebhookException;
+        $urlValidator->setOption('allow_empty', false);
+
+        if (!$urlValidator->isValid($url, $errorKey)) {
+            throw new InvalidWebhookException($errorKey);
         }
 
         $this->url = $url;
