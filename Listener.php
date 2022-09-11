@@ -13,6 +13,7 @@ use HijodeputhIV\Subscriptions\Service\WebhookChecker;
 use HijodeputhIV\Subscriptions\Service\WebhookNotifier;
 use HijodeputhIV\Subscriptions\Action\CreateSubscription;
 use HijodeputhIV\Subscriptions\Action\NotifyPost;
+use HijodeputhIV\Subscriptions\Action\NotifyUserAlert;
 
 final class Listener
 {
@@ -64,6 +65,15 @@ final class Listener
             return new NotifyPost(
                 subscriptionRepository: $app->get(MysqlSubscriptionRepository::class),
                 webhookNotifier: $app->get(WebhookNotifier::class),
+                error: $app->error(),
+            );
+        };
+
+        $container[NotifyUserAlert::class] = function() use ($app) {
+            return new NotifyUserAlert(
+                subscriptionRepository: $app->get(MysqlSubscriptionRepository::class),
+                webhookNotifier: $app->get(WebhookNotifier::class),
+                error: $app->error(),
             );
         };
 

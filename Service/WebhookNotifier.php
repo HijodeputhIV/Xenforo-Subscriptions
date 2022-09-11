@@ -2,16 +2,17 @@
 
 namespace HijodeputhIV\Subscriptions\Service;
 
-use GuzzleHttp\Promise\PromiseInterface;
-use GuzzleHttp\Psr7\Request;
-use Throwable;
+use JsonSerializable;
 use Generator;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Pool;
 
+use HijodeputhIV\Subscriptions\Entity\Subscription;
 use HijodeputhIV\Subscriptions\ValueObject\Webhook;
 use HijodeputhIV\Subscriptions\ValueObject\XFPostData;
+use HijodeputhIV\Subscriptions\ValueObject\XFUserAlertData;
 
 final class WebhookNotifier
 {
@@ -20,20 +21,55 @@ final class WebhookNotifier
     ) {}
 
     /**
-     * @param Webhook[] $webhooks
+     * @param Subscription[] $subscriptions
      */
-    public function notifyPost(array $webhooks, XFPostData $postData) : void
+    private function postAsyncRequests(string $uri, array $subscriptions, JsonSerializable $data) : void
     {
-        $asyncRequests = function() use($webhooks, $postData) : Generator {
+        $webhooks = array_map(
+            function (Subscription $subscription) : Webhook {
+                return $subscription->webhook;
+            },
+            $subscriptions,
+        );
+
+        $asyncRequests = function() use($webhooks, $uri, $data) : Generator {
             foreach ($webhooks as $webhook) {
-                yield function() use ($webhook, $postData) : PromiseInterface {
-                    return $this->httpClient->postAsync($webhook->getValue(), ['json' => $postData]);
+                $url = $webhook->getValue().$uri;
+                yield function() use ($url, $data) : PromiseInterface {
+                    return $this->httpClient->postAsync(
+                        $url,
+                        ['json' => $data]
+                    );
                 };
             }
         };
 
         $pool = new Pool($this->httpClient, $asyncRequests());
         $pool->promise()->wait();
+    }
+
+    /**
+     * @param Subscription[] $subscriptions
+     */
+    public function notifyPost(array $subscriptions, XFPostData $postData) : void
+    {
+        $this->postAsyncRequests(
+            uri: '/posts',
+            subscriptions: $subscriptions,
+            data: $postData,
+        );
+    }
+
+    /**
+     * @param Subscription[] $subscriptions
+     */
+    public function notifyUserAlert(array $subscriptions, XFUserAlertData $userAlertData) : void
+    {
+        $this->postAsyncRequests(
+            uri: '/user-alerts',
+            subscriptions: $subscriptions,
+            data: $userAlertData,
+        );
     }
 
 }
