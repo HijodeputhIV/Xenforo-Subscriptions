@@ -7,6 +7,7 @@ use ReflectionException;
 
 use XF\Mvc\Entity\Manager;
 use XF\Db\Exception;
+use XF\Entity\User;
 
 use HijodeputhIV\Subscriptions\Entity\Subscription;
 use HijodeputhIV\Subscriptions\ValueObject\SubscriptionId;
@@ -51,30 +52,10 @@ final class MysqlSubscriptionRepository
     }
 
     /**
-     * @return Subscription[]
-     *
      * @throws ReflectionException
      */
-    private function hydrateInstances(array $rows) : array
+    private function createInstance(?array $row) : ?Subscription
     {
-        return array_map(
-            function (array $row) : Subscription {
-                return $this->hydrateInstance($row);
-            },
-            $rows,
-        );
-    }
-
-    /**
-     * @throws ReflectionException
-     */
-    public function get(UserId $userId) : ?Subscription
-    {
-        $row = $this->entityManager->getDb()->fetchRow(
-            query: 'SELECT * FROM `xf_subscriptions` WHERE user_id = ?',
-            params: ['user_id' => $userId->getValue()]
-        );
-
         if (!$row) {
             return null;
         }
@@ -87,10 +68,53 @@ final class MysqlSubscriptionRepository
      *
      * @throws ReflectionException
      */
+    private function createInstances(array $rows) : array
+    {
+        return array_map(
+            function (array $row) : Subscription {
+                return $this->hydrateInstance($row);
+            },
+            $rows,
+        );
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    public function get(SubscriptionId $id) : ?Subscription
+    {
+        $row = $this->entityManager->getDb()->fetchRow(
+            query: 'SELECT * FROM `xf_subscriptions` WHERE id = ?',
+            params: ['user_id' => $id->getValue()]
+        ) ?: null;
+
+        return $this->createInstance($row);
+    }
+
+    /**
+     * @return Subscription[]
+     *
+     * @throws ReflectionException
+     */
+    public function getByUser(User $user) : array
+    {
+        $rows = $this->entityManager->getDb()->fetchAll(
+            query: 'SELECT * FROM `xf_subscriptions` WHERE user_id = ?',
+            params: ['user_id' => $user->user_id]
+        );
+
+        return $this->createInstances($rows);
+    }
+
+    /**
+     * @return Subscription[]
+     *
+     * @throws ReflectionException
+     */
     public function all() : array
     {
         $rows = $this->entityManager->getDb()->fetchAll('SELECT * FROM `xf_subscriptions`');
-        return $this->hydrateInstances($rows);
+        return $this->createInstances($rows);
     }
 
     /**
@@ -101,7 +125,7 @@ final class MysqlSubscriptionRepository
     public function groupByWebhook() : array
     {
         $rows = $this->entityManager->getDb()->fetchAll('SELECT * FROM `xf_subscriptions` GROUP BY `webhook`');
-        return $this->hydrateInstances($rows);
+        return $this->createInstances($rows);
     }
 
     /**
