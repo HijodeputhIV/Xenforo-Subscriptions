@@ -13,6 +13,13 @@ use HijodeputhIV\Subscriptions\ValueObject\XFUserAlertData;
 
 class NotifyUserAlert
 {
+    private static string $notifiableContentType = 'post';
+
+    private static array $notifiableUserAlerts = [
+        'quote',
+        'mention',
+    ];
+
     public function __construct(
         private readonly MysqlSubscriptionRepository $subscriptionRepository,
         private readonly WebhookNotifier $webhookNotifier,
@@ -21,8 +28,8 @@ class NotifyUserAlert
 
     private function isNotifiable(UserAlert $userAlert) : bool
     {
-        return $userAlert->content_type === 'post'
-            && in_array($userAlert->action, ['quote', 'mention']);
+        return $userAlert->content_type === self::$notifiableContentType
+            && in_array($userAlert->action, self::$notifiableUserAlerts);
     }
 
     public function notify(UserAlert $userAlert) : void
