@@ -13,6 +13,7 @@ use HijodeputhIV\Subscriptions\ValueObject\SubscriptionId;
 use HijodeputhIV\Subscriptions\ValueObject\UserId;
 use HijodeputhIV\Subscriptions\ValueObject\Webhook;
 use HijodeputhIV\Subscriptions\ValueObject\Token;
+use HijodeputhIV\Subscriptions\Exception\InvalidUuidException;
 use HijodeputhIV\Subscriptions\Exception\InvalidUserIdException;
 use HijodeputhIV\Subscriptions\Exception\InvalidTokenException;
 use HijodeputhIV\Subscriptions\Exception\InvalidWebhookException;
