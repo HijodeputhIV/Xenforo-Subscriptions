@@ -2,20 +2,13 @@
 
 namespace HijodeputhIV\Subscriptions\XF\Entity;
 
-use ReflectionException;
-
 use XF;
 
 use HijodeputhIV\Subscriptions\Action\NotifyUserAlert;
-use HijodeputhIV\Subscriptions\ValueObject\XFUserAlertData;
-
 
 final class UserAlert extends XFCP_UserAlert
 {
 
-    /**
-     * @throws ReflectionException
-     */
     public function _postSave() : void
     {
         parent::_postSave();
@@ -24,4 +17,5 @@ final class UserAlert extends XFCP_UserAlert
         $notifyUserAlert = XF::app()->get(NotifyUserAlert::class);
         $notifyUserAlert->notify($this);
     }
+
 }
