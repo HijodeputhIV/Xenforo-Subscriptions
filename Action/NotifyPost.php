@@ -5,12 +5,11 @@ namespace HijodeputhIV\Subscriptions\Action;
 use ReflectionException;
 
 use XF\Error;
+use XF\Entity\Post;
 
 use HijodeputhIV\Subscriptions\Repository\MysqlSubscriptionRepository;
 use HijodeputhIV\Subscriptions\Service\WebhookNotifier;
-use HijodeputhIV\Subscriptions\ValueObject\Webhook;
 use HijodeputhIV\Subscriptions\ValueObject\XFPostData;
-use HijodeputhIV\Subscriptions\Entity\Subscription;
 
 final class NotifyPost
 {
@@ -20,17 +19,13 @@ final class NotifyPost
         private readonly Error $error,
     ) {}
 
-    public function notify(XFPostData $postData) : void
+    public function notify(Post $post) : void
     {
         try {
-            $uniqueWebhooks = array_map(
-                function (Subscription $subscription) : Webhook {
-                    return $subscription->webhook;
-                },
-                $this->subscriptionRepository->groupByWebhook(),
+            $this->webhookNotifier->notifyPost(
+                subscriptions: $this->subscriptionRepository->groupByWebhook(),
+                postData: XFPostData::fromXFEntity($post),
             );
-
-            $this->webhookNotifier->notifyPost($uniqueWebhooks, $postData);
         }
         catch (ReflectionException $e) {
             $this->error->logError($e->getMessage());

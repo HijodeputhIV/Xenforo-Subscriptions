@@ -21,7 +21,7 @@ final class Post extends XFCP_Post
 
         /** @var NotifyPost $notifyPost */
         $notifyPost = XF::app()->get(NotifyPost::class);
-        $notifyPost->notify(XFPostData::fromXFEntity($this));
+        $notifyPost->notify($this);
     }
 
 }
