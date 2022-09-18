@@ -9,7 +9,7 @@ use HijodeputhIV\Subscriptions\Action\NotifyUserAlert;
 final class UserAlert extends XFCP_UserAlert
 {
 
-    public function _postSave() : void
+    protected function _postSave() : void
     {
         parent::_postSave();
 
