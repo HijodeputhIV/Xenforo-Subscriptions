@@ -54,7 +54,7 @@ final class MysqlSubscriptionRepository
     /**
      * @throws ReflectionException
      */
-    private function createInstance(?array $row) : ?Subscription
+    private function createInstance(false|array $row) : ?Subscription
     {
         if (!$row) {
             return null;
@@ -86,7 +86,7 @@ final class MysqlSubscriptionRepository
         $row = $this->entityManager->getDb()->fetchRow(
             query: 'SELECT * FROM `xf_subscriptions` WHERE id = ?',
             params: ['user_id' => $id->getValue()]
-        ) ?: null;
+        );
 
         return $this->createInstance($row);
     }
@@ -101,6 +101,34 @@ final class MysqlSubscriptionRepository
         $rows = $this->entityManager->getDb()->fetchAll(
             query: 'SELECT * FROM `xf_subscriptions` WHERE user_id = ?',
             params: ['user_id' => $user->user_id]
+        );
+
+        return $this->createInstances($rows);
+    }
+
+    /**
+     * @param User[] $users
+     * @return Subscription[]
+     *
+     * @throws ReflectionException
+     */
+    public function getByUsers(array $users) : array
+    {
+        $userIds = array_map(
+            function (User $user) : int {
+                return $user->user_id;
+            },
+            $users
+        );
+
+        $userIdsPadding = implode(
+            separator: ',',
+            array: array_fill(0, count($userIds), '?')
+        );
+
+        $rows = $this->entityManager->getDb()->fetchAll(
+            query: 'SELECT * FROM `xf_subscriptions` WHERE user_id IN ('.$userIdsPadding.')',
+            params: $userIds
         );
 
         return $this->createInstances($rows);

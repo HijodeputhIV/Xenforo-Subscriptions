@@ -13,6 +13,7 @@ use HijodeputhIV\Subscriptions\Entity\Subscription;
 use HijodeputhIV\Subscriptions\ValueObject\Webhook;
 use HijodeputhIV\Subscriptions\ValueObject\XFPostData;
 use HijodeputhIV\Subscriptions\ValueObject\XFUserAlertData;
+use HijodeputhIV\Subscriptions\ValueObject\XFConversationMessageData;
 
 final class WebhookNotifier
 {
@@ -63,12 +64,30 @@ final class WebhookNotifier
     /**
      * @param Subscription[] $subscriptions
      */
-    public function notifyUserAlert(array $subscriptions, XFUserAlertData $userAlertData) : void
+    public function notifyUserAlert(
+        array $subscriptions,
+        XFUserAlertData $userAlertData,
+    ) : void
     {
         $this->postAsyncRequests(
             uri: '/user-alerts',
             subscriptions: $subscriptions,
             data: $userAlertData,
+        );
+    }
+
+    /**
+     * @param Subscription[] $subscriptions
+     */
+    public function notifyConversationMessage(
+        array $subscriptions,
+        XFConversationMessageData $conversationMessageData,
+    ) : void
+    {
+        $this->postAsyncRequests(
+            uri: '/conversation-messages',
+            subscriptions: $subscriptions,
+            data: $conversationMessageData,
         );
     }
 
