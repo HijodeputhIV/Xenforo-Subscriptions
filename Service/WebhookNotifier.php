@@ -8,6 +8,9 @@ use Generator;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Pool;
+use GuzzleHttp\Exception\RequestException;
+
+use XF\Error;
 
 use HijodeputhIV\Subscriptions\Entity\Subscription;
 use HijodeputhIV\Subscriptions\ValueObject\Webhook;
@@ -19,6 +22,7 @@ final class WebhookNotifier
 {
     public function __construct(
         private readonly Client $httpClient,
+        private readonly Error $error,
     ) {}
 
     /**
@@ -45,7 +49,12 @@ final class WebhookNotifier
             }
         };
 
-        $pool = new Pool($this->httpClient, $asyncRequests());
+
+        $pool = new Pool($this->httpClient, $asyncRequests(), [
+            'rejected' => function (RequestException $reason, int $index) {
+                $this->error->logError($reason->getMessage());
+            },
+        ]);
         $pool->promise()->wait();
     }
 

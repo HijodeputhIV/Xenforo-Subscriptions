@@ -19,13 +19,13 @@ use HijodeputhIV\Subscriptions\Action\NotifyConversationMessage;
 final class Listener
 {
 
-    private static function createSilentHttpClient(App $app) : Client
+    private static function createJsonHttpClient(App $app) : Client
     {
         return $app->http()->createClient([
             'headers' => [
                 'Content-Type' => 'application/json'
             ],
-            'http_errors' => false,
+            'http_errors' => true,
         ]);
     }
 
@@ -49,11 +49,17 @@ final class Listener
         };
 
         $container[WebhookChecker::class] = function () use ($app) {
-            return new WebhookChecker(self::createSilentHttpClient($app));
+            return new WebhookChecker(
+                httpClient: self::createJsonHttpClient($app),
+                error: $app->error(),
+            );
         };
 
         $container[WebhookNotifier::class] = function () use ($app) {
-            return new WebhookNotifier(self::createSilentHttpClient($app));
+            return new WebhookNotifier(
+                httpClient: self::createJsonHttpClient($app),
+                error: $app->error(),
+            );
         };
 
         $container[CreateSubscription::class] = function () use ($app) {

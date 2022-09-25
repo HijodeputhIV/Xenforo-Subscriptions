@@ -3,6 +3,9 @@
 namespace HijodeputhIV\Subscriptions\Service;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
+
+use XF\Error;
 
 use HijodeputhIV\Subscriptions\ValueObject\Webhook;
 use HijodeputhIV\Subscriptions\ValueObject\Token;
@@ -12,6 +15,7 @@ final class WebhookChecker
 {
     public function __construct(
         private readonly Client $httpClient,
+        private readonly Error $error,
     ) {}
 
     /**
@@ -21,7 +25,13 @@ final class WebhookChecker
     {
         $challengeUrlValue = $webhook->getValue().'/'.$challenge->getValue();
 
-        if ($this->httpClient->head($challengeUrlValue)->getStatusCode() !== 200) {
+        try {
+            $this->httpClient->head($challengeUrlValue)->getStatusCode() !== 200) {
+                throw new WebhookNotImplementedException($webhook);
+            }
+        }
+        catch (RequestException $reason) {
+            $this->error->logError($reason->getMessage());
             throw new WebhookNotImplementedException($webhook);
         }
     }
