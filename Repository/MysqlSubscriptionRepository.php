@@ -39,14 +39,26 @@ final class MysqlSubscriptionRepository
         return $instance;
     }
 
-    private function hydrateInstance(array $arguments) : ?Subscription
+    private function hydrateInstance(array $row) : ?Subscription
     {
         try {
             return new Subscription(
-                id: $this->hydrateProperty(SubscriptionId::class, ['uuid' => $arguments['id']]),
-                userId: $this->hydrateProperty(UserId::class, ['user_id' => $arguments['user_id']]),
-                webhook: $this->hydrateProperty(Webhook::class, ['url' => $arguments['webhook']]),
-                token: $this->hydrateProperty(Token::class, ['hulsash' => $arguments['token']]),
+                id: $this->hydrateProperty(
+                    SubscriptionId::class,
+                    ['uuid' => $row['id']]
+                ),
+                userId: $this->hydrateProperty(
+                    UserId::class,
+                    ['user_id' => $row['user_id']]
+                ),
+                webhook: $this->hydrateProperty(
+                    Webhook::class,
+                    ['url' => $row['webhook']]
+                ),
+                token: $this->hydrateProperty(
+                    Token::class,
+                    ['hash' => $row['token']]
+                ),
             );
         }
         catch (ReflectionException $e) {
@@ -134,7 +146,10 @@ final class MysqlSubscriptionRepository
      */
     public function all() : array
     {
-        $rows = $this->entityManager->getDb()->fetchAll('SELECT * FROM `xf_subscriptions`');
+        $rows = $this->entityManager->getDb()->fetchAll(
+            query: 'SELECT * FROM `xf_subscriptions`'
+        );
+
         return $this->createInstances($rows);
     }
 
@@ -143,7 +158,10 @@ final class MysqlSubscriptionRepository
      */
     public function groupByWebhook() : array
     {
-        $rows = $this->entityManager->getDb()->fetchAll('SELECT * FROM `xf_subscriptions` GROUP BY `webhook`');
+        $rows = $this->entityManager->getDb()->fetchAll(
+            query: 'SELECT * FROM `xf_subscriptions` GROUP BY `webhook`'
+        );
+        
         return $this->createInstances($rows);
     }
 
