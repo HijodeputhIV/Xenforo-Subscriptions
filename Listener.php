@@ -34,7 +34,10 @@ final class Listener
         $container = $app->container();
 
         $container[MysqlSubscriptionRepository::class] = function () use ($app) {
-            return new MysqlSubscriptionRepository($app->em());
+            return new MysqlSubscriptionRepository(
+                entityManager: $app->em(),
+                error: $app->error(),
+            );
         };
 
         $container[MysqlUserRepository::class] = function () use ($app) {
@@ -66,7 +69,6 @@ final class Listener
             return new NotifyPost(
                 subscriptionRepository: $app->get(MysqlSubscriptionRepository::class),
                 webhookNotifier: $app->get(WebhookNotifier::class),
-                error: $app->error(),
             );
         };
 
@@ -74,7 +76,6 @@ final class Listener
             return new NotifyUserAlert(
                 subscriptionRepository: $app->get(MysqlSubscriptionRepository::class),
                 webhookNotifier: $app->get(WebhookNotifier::class),
-                error: $app->error(),
             );
         };
 
@@ -82,7 +83,6 @@ final class Listener
             return new NotifyConversationMessage(
                 subscriptionRepository: $app->get(MysqlSubscriptionRepository::class),
                 webhookNotifier: $app->get(WebhookNotifier::class),
-                error: $app->error(),
             );
         };
 

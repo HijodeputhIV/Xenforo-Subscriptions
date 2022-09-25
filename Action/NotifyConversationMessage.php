@@ -2,9 +2,6 @@
 
 namespace HijodeputhIV\Subscriptions\Action;
 
-use ReflectionException;
-
-use XF\Error;
 use XF\Entity\ConversationMessage;
 use XF\Entity\User;
 
@@ -17,7 +14,6 @@ final class NotifyConversationMessage
     public function __construct(
         private readonly MysqlSubscriptionRepository $subscriptionRepository,
         private readonly WebhookNotifier $webhookNotifier,
-        private readonly Error $error,
     ) {}
 
     /**
@@ -25,15 +21,10 @@ final class NotifyConversationMessage
      */
     public function notify(ConversationMessage $conversationMessage, array $usersNotified) : void
     {
-        try {
-            $this->webhookNotifier->notifyConversationMessage(
-                subscriptions: $this->subscriptionRepository->getByUsers($usersNotified),
-                conversationMessageData: XFConversationMessageData::fromXFEntity($conversationMessage),
-            );
-        }
-        catch (ReflectionException $e) {
-            $this->error->logError($e->getMessage());
-        }
+        $this->webhookNotifier->notifyConversationMessage(
+            subscriptions: $this->subscriptionRepository->getByUsers($usersNotified),
+            conversationMessageData: XFConversationMessageData::fromXFEntity($conversationMessage),
+        );
     }
 
 }

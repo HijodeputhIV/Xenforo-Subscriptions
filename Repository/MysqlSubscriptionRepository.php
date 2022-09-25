@@ -6,8 +6,8 @@ use ReflectionClass;
 use ReflectionException;
 
 use XF\Mvc\Entity\Manager;
-use XF\Db\Exception;
 use XF\Entity\User;
+use XF\Error;
 
 use HijodeputhIV\Subscriptions\Entity\Subscription;
 use HijodeputhIV\Subscriptions\ValueObject\SubscriptionId;
@@ -19,6 +19,7 @@ final class MysqlSubscriptionRepository
 {
     public function __construct(
         private readonly Manager $entityManager,
+        private readonly Error $error,
     ) {}
 
     /**
@@ -38,22 +39,22 @@ final class MysqlSubscriptionRepository
         return $instance;
     }
 
-    /**
-     * @throws ReflectionException
-     */
-    private function hydrateInstance(array $arguments) : Subscription
+    private function hydrateInstance(array $arguments) : ?Subscription
     {
-        return new Subscription(
-            id: $this->hydrateProperty(SubscriptionId::class, ['uuid' => $arguments['id']]),
-            userId: $this->hydrateProperty(UserId::class, ['user_id' => $arguments['user_id']]),
-            webhook: $this->hydrateProperty(Webhook::class, ['url' => $arguments['webhook']]),
-            token: $this->hydrateProperty(Token::class, ['hash' => $arguments['token']]),
-        );
+        try {
+            return new Subscription(
+                id: $this->hydrateProperty(SubscriptionId::class, ['uuid' => $arguments['id']]),
+                userId: $this->hydrateProperty(UserId::class, ['user_id' => $arguments['user_id']]),
+                webhook: $this->hydrateProperty(Webhook::class, ['url' => $arguments['webhook']]),
+                token: $this->hydrateProperty(Token::class, ['hulsash' => $arguments['token']]),
+            );
+        }
+        catch (ReflectionException $e) {
+            $this->error->logError($e->getMessage());
+            return null;
+        }
     }
 
-    /**
-     * @throws ReflectionException
-     */
     private function createInstance(false|array $row) : ?Subscription
     {
         if (!$row) {
@@ -65,22 +66,19 @@ final class MysqlSubscriptionRepository
 
     /**
      * @return Subscription[]
-     *
-     * @throws ReflectionException
      */
     private function createInstances(array $rows) : array
     {
-        return array_map(
-            function (array $row) : Subscription {
-                return $this->hydrateInstance($row);
-            },
-            $rows,
+        return array_filter(
+            array_map(
+                function (array $row) : ?Subscription {
+                    return $this->hydrateInstance($row);
+                },
+                $rows,
+            )
         );
     }
 
-    /**
-     * @throws ReflectionException
-     */
     public function get(SubscriptionId $id) : ?Subscription
     {
         $row = $this->entityManager->getDb()->fetchRow(
@@ -93,8 +91,6 @@ final class MysqlSubscriptionRepository
 
     /**
      * @return Subscription[]
-     *
-     * @throws ReflectionException
      */
     public function getByUser(User $user) : array
     {
@@ -108,9 +104,8 @@ final class MysqlSubscriptionRepository
 
     /**
      * @param User[] $users
-     * @return Subscription[]
      *
-     * @throws ReflectionException
+     * @return Subscription[]
      */
     public function getByUsers(array $users) : array
     {
@@ -136,8 +131,6 @@ final class MysqlSubscriptionRepository
 
     /**
      * @return Subscription[]
-     *
-     * @throws ReflectionException
      */
     public function all() : array
     {
@@ -147,8 +140,6 @@ final class MysqlSubscriptionRepository
 
     /**
      * @return Subscription[]
-     *
-     * @throws ReflectionException
      */
     public function groupByWebhook() : array
     {
@@ -156,9 +147,6 @@ final class MysqlSubscriptionRepository
         return $this->createInstances($rows);
     }
 
-    /**
-     * @throws Exception
-     */
     public function save(Subscription $subscription) : void
     {
         $this->entityManager->getDb()->insert(
